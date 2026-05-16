@@ -42,9 +42,9 @@
     .wrap { max-width: 680px; margin: 0 auto; }
 
     /* ── Header ── */
-    .hd { margin-bottom: 36px; }
-    .hd h1 { font-size: 18px; font-weight: 700; }
-    .hd p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .hd { margin-bottom: 36px; text-align: center; }
+    .hd h1 { font-size: 27px; font-weight: 700; }
+    .hd p  { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
     /* ── Section ── */
     .sec { margin-bottom: 36px; }
@@ -98,7 +98,8 @@
     .dz img        { max-width: 200px; max-height: 200px; object-fit: contain; display: block; margin: 0 auto 12px; }
     .dz .hint      { font-size: 13px; color: var(--muted); }
     .dz .ok-lbl    { font-size: 13px; font-weight: 600; color: var(--green); margin-top: 6px; }
-    .dz .re-lbl    { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .dz .praise-txt { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 10px; line-height: 1.6; }
+    .dz .re-lbl    { font-size: 11px; color: var(--muted); margin-top: 8px; }
     #fi { display: none; }
 
     /* ── Heatmap ── */
@@ -285,6 +286,19 @@ function shame() {
   return n;
 }
 
+/* ── Praise messages ── */
+const PRAISES = [
+  '天才か？よく頑張ったな。自分へのご褒美にお菓子でも買いな。',
+  'マジで偉すぎる。今日のあなたは最高にかっこいい。',
+  'これは神の所業。ノーベルポートフォリオ賞あげたい。',
+  'やばい、感動した。続けてるあなたが一番強い。',
+  '今日も提出できたじゃん。普通に尊敬してる。',
+  '素晴らしすぎて言葉が出ない。とにかくえらい。',
+  'こんなに頑張れるの、あなたしかいないよ。本当に。',
+  '毎日これができる人間、そうそういないよ。本物だ。',
+  '今すぐ自分を褒めて。それだけの価値がある。',
+];
+
 /* ── 9-level taunts ── */
 const TAUNTS = [
   [1,  1,   'まだ提出してないぞ。今すぐやれ。'],
@@ -332,9 +346,11 @@ function render() {
   const dzIn = document.getElementById('dz-in');
   if (done) {
     dz.className = 'dz done';
+    const sub = db.subs[t];
     dzIn.innerHTML =
-      `<img src="${db.subs[t].img}" alt="提出済み">` +
+      `<img src="${sub.img}" alt="提出済み">` +
       `<div class="ok-lbl">✓ 提出済み</div>` +
+      (sub.praise ? `<div class="praise-txt">${sub.praise}</div>` : '') +
       `<div class="re-lbl">クリックで更新</div>`;
   } else {
     dz.className = 'dz';
@@ -435,7 +451,8 @@ async function submit(file) {
   if (!file || !file.type.startsWith('image/')) return;
   try {
     const img = await compress(file);
-    db.subs[today()] = { img, at: Date.now() };
+    const praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+    db.subs[today()] = { img, at: Date.now(), praise };
     persist();
     render();
   } catch(_) {

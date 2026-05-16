@@ -7,7 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;800;900&family=Poppins:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;800;900&family=Poppins:wght@600;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:      #f0f0f0;
@@ -15,12 +15,19 @@
       --border:  #e2e2e2;
       --text:    #33332c;
       --muted:   #999999;
-      --green:   #16a34a;
-      --red:     #dc2626;
+      --green:   #1D9E75;
+      --red:     #E24B4A;
       --blue:    #2563eb;
-      --hg:      #22c55e;
-      --hr:      #f87171;
+      --hg:      #1D9E75;
+      --hr:      #E24B4A;
       --radius:  16px;
+
+      /* Rank palettes */
+      --bronze-dark:    #993C1D; --bronze-light:    #F5C4B3;
+      --silver-dark:    #444441; --silver-light:    #D3D1C7;
+      --gold-dark:      #633806; --gold-light:      #FAC775; --gold-accent: #EF9F27;
+      --platinum-dark:  #3C3489; --platinum-light:  #CECBF6;
+      --legend-dark:    #72243E; --legend-light:    #F4C0D1;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -45,7 +52,7 @@
       line-height: 1.5;
       padding: 36px 16px 96px;
     }
-    .wrap { max-width: 680px; margin: 0 auto; }
+    .wrap { max-width: 760px; margin: 0 auto; }
 
     /* ── Header ── */
     .hd { margin-bottom: 20px; text-align: center; }
@@ -59,11 +66,9 @@
       border-radius: var(--radius);
       padding: 20px 24px;
       margin-bottom: 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    .rules p { font-size: 13px; line-height: 1.8; color: var(--muted); }
+    .rules p      { font-size: 13px; line-height: 1.8; color: var(--muted); }
     .rules strong { color: var(--text); font-weight: 700; }
 
     /* ── Section ── */
@@ -91,13 +96,84 @@
       border-radius: var(--radius);
       padding: 18px 14px;
       transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s;
-      cursor: default;
     }
     .stat:hover { transform: translateY(-4px); border-color: var(--blue); }
     .stat-v { font-size: 28px; font-weight: 800; line-height: 1; }
     .stat-v.ok { color: var(--green); }
     .stat-v.ng { color: var(--red); }
     .stat-k { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+    /* ── Rank Current ── */
+    .rank-current {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex; align-items: center; gap: 20px;
+    }
+    .rank-current.has-rank { background: var(--rank-bg, var(--surface)); border-color: var(--rank-border, var(--border)); }
+    .rank-current .ri {
+      font-size: 56px; line-height: 1;
+      width: 80px; height: 80px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 20px;
+      background: var(--rank-icon-bg, color-mix(in srgb, var(--muted) 15%, transparent));
+      flex-shrink: 0;
+    }
+    .rank-current .ri-info { flex: 1; min-width: 0; }
+    .rank-current .ri-name {
+      font-size: 22px; font-weight: 800; color: var(--rank-name, var(--text)); line-height: 1.1;
+    }
+    .rank-current .ri-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .rank-bar {
+      margin-top: 10px;
+      height: 8px; background: color-mix(in srgb, var(--muted) 20%, transparent);
+      border-radius: 99px; overflow: hidden;
+    }
+    .rank-bar-fill {
+      height: 100%;
+      background: var(--rank-fill, var(--blue));
+      border-radius: 99px;
+      transition: width .6s cubic-bezier(.34,1.56,.64,1);
+    }
+    .rank-max { font-size: 13px; font-weight: 700; color: var(--rank-name, var(--text)); margin-top: 8px; }
+
+    /* ── Rank Grid ── */
+    .rank-grid {
+      display: grid; grid-template-columns: repeat(5,1fr); gap: 8px;
+    }
+    .rank-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      position: relative;
+      transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    .rank-card:hover { transform: translateY(-3px); }
+    .rank-card .ic { font-size: 28px; line-height: 1; }
+    .rank-card .nm { font-size: 12px; font-weight: 700; margin-top: 6px; color: var(--text); }
+    .rank-card .rg { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .rank-card.active {
+      border-width: 2px;
+      background: var(--rank-bg, var(--surface));
+      border-color: var(--rank-border, var(--text));
+    }
+    .rank-card .badge {
+      position: absolute; top: -8px; right: 50%; transform: translateX(50%);
+      background: var(--rank-border, var(--text)); color: #fff;
+      font-size: 9px; font-weight: 700;
+      padding: 2px 8px; border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    /* Rank theme variables applied to rank-card / rank-current */
+    .rk-bronze   { --rank-border: var(--bronze-dark);   --rank-bg: var(--bronze-light);   --rank-name: var(--bronze-dark);   --rank-fill: var(--bronze-dark);   --rank-icon-bg: var(--bronze-light); }
+    .rk-silver   { --rank-border: var(--silver-dark);   --rank-bg: var(--silver-light);   --rank-name: var(--silver-dark);   --rank-fill: var(--silver-dark);   --rank-icon-bg: var(--silver-light); }
+    .rk-gold     { --rank-border: var(--gold-accent);   --rank-bg: var(--gold-light);     --rank-name: var(--gold-dark);     --rank-fill: var(--gold-accent);   --rank-icon-bg: var(--gold-light); }
+    .rk-platinum { --rank-border: var(--platinum-dark); --rank-bg: var(--platinum-light); --rank-name: var(--platinum-dark); --rank-fill: var(--platinum-dark); --rank-icon-bg: var(--platinum-light); }
+    .rk-legend   { --rank-border: var(--legend-dark);   --rank-bg: var(--legend-light);   --rank-name: var(--legend-dark);   --rank-fill: var(--legend-dark);   --rank-icon-bg: var(--legend-light); }
 
     /* ── Shame Wall ── */
     .shame {
@@ -143,25 +219,19 @@
     .dz .re-lbl    { font-size: 11px; color: var(--muted); margin-top: 10px; }
     #fi { display: none; }
 
-    /* ── Heatmap ── */
-    .cal-hd {
-      display: grid; grid-template-columns: repeat(7,1fr);
-      gap: 4px; margin-bottom: 4px;
-    }
-    .cal-hd span { text-align: center; font-size: 9px; color: var(--muted); }
-    .cal { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    /* ── Heatmap (15 × 2) ── */
+    .cal { display: grid; grid-template-columns: repeat(15,1fr); gap: 4px; }
     .cc {
       aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 600;
-      border-radius: 8px;
+      font-size: 11px; font-weight: 600; color: #fff;
+      border-radius: 6px;
       transition: transform .15s cubic-bezier(.34,1.56,.64,1);
     }
-    .cc.pre  { color: var(--muted); opacity: .25; }
-    .cc.hit  { background: var(--hg); color: #fff; cursor: pointer; }
-    .cc.miss { background: var(--hr); color: #fff; opacity: .8; }
-    .cc.now  { background: var(--surface); border: 2px solid var(--muted); color: var(--text); }
-    .cc.hit:hover  { transform: scale(1.2); z-index: 1; }
-    .cc.miss:hover { transform: scale(1.15); z-index: 1; }
+    .cc.pre  { background: color-mix(in srgb, var(--muted) 20%, transparent); color: var(--muted); }
+    .cc.hit  { background: var(--hg); }
+    .cc.miss { background: var(--hr); opacity: .85; }
+    .cc.now  { background: color-mix(in srgb, var(--muted) 20%, transparent); color: var(--text); border: 2px solid var(--muted); }
+    .cc.hit:hover, .cc.miss:hover, .cc.now:hover { transform: scale(1.18); z-index: 1; }
 
     /* ── Gallery ── */
     .gallery { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
@@ -169,6 +239,7 @@
       aspect-ratio: 1; position: relative; overflow: hidden;
       background: var(--surface); border: 1.5px solid var(--border);
       border-radius: 14px;
+      cursor: zoom-in;
       transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s;
       animation: giIn .35s cubic-bezier(.34,1.56,.64,1) both;
     }
@@ -201,15 +272,125 @@
       border-radius: 10px;
       transition: border-color .15s, background .15s, color .15s, transform .15s cubic-bezier(.34,1.56,.64,1);
     }
-    .btn:hover          { border-color: var(--muted); transform: translateY(-2px); }
-    .btn:active         { transform: scale(.95); }
-    .btn.primary        { border-color: var(--blue); color: var(--blue); }
-    .btn.primary:hover  { background: var(--blue); color: #fff; }
-    .btn.danger         { border-color: var(--red); color: var(--red); }
-    .btn.danger:hover   { background: var(--red); color: #fff; }
+    .btn:hover         { border-color: var(--muted); transform: translateY(-2px); }
+    .btn:active        { transform: scale(.95); }
+    .btn.primary       { border-color: var(--blue); color: var(--blue); }
+    .btn.primary:hover { background: var(--blue); color: #fff; }
+    .btn.danger        { border-color: var(--red); color: var(--red); }
+    .btn.danger:hover  { background: var(--red); color: #fff; }
     .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
+    /* ── Modal (preview & rank-up) ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      animation: fadeIn .2s ease;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 40px; height: 40px;
+      border: none; background: rgba(255,255,255,.12);
+      color: #fff; font-size: 20px; font-weight: 600;
+      border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, transform .15s;
+      z-index: 2;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.25); transform: rotate(90deg); }
+
+    /* Preview modal */
+    .preview-wrap {
+      max-width: 90vw; max-height: 90vh;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      animation: previewIn .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .preview-imgs {
+      display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto; max-height: 80vh;
+    }
+    .preview-imgs img {
+      max-width: 90vw; max-height: 75vh;
+      object-fit: contain; border-radius: 12px;
+      display: block;
+    }
+    .preview-date { color: #fff; font-size: 14px; font-weight: 600; }
+
+    /* Rank-up modal */
+    #rankup-overlay { position: fixed; inset: 0; z-index: 1100; display: none; }
+    #rankup-overlay.active { display: block; }
+    #confetti-canvas {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1101;
+    }
+    #rankup-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.6);
+      animation: fadeIn .25s ease;
+    }
+    .rankup-card {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--surface);
+      border: 2px solid var(--rank-border, var(--text));
+      border-radius: 24px;
+      padding: 36px 40px 32px;
+      text-align: center;
+      min-width: 320px; max-width: 90vw;
+      z-index: 1102;
+      animation: rankupIn .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    .rankup-card .ic {
+      font-size: 88px; line-height: 1;
+      margin-bottom: 16px;
+      display: inline-block;
+      animation: rankIconBounce 1s ease infinite;
+    }
+    .rankup-card .lbl-up {
+      font-family: 'Poppins', sans-serif; font-weight: 900;
+      font-size: 14px; letter-spacing: .15em;
+      color: var(--rank-name, var(--text));
+      text-transform: uppercase;
+    }
+    .rankup-card .nm {
+      font-size: 32px; font-weight: 900;
+      color: var(--rank-name, var(--text));
+      margin-top: 4px; letter-spacing: -.02em;
+    }
+    .rankup-card .msg {
+      font-size: 14px; line-height: 1.8;
+      color: var(--text); margin-top: 16px;
+      white-space: pre-line;
+    }
+    .rankup-card .close-btn {
+      margin-top: 24px;
+      padding: 12px 32px;
+      background: var(--rank-name, var(--text));
+      color: #fff; border: none;
+      border-radius: 10px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: transform .15s;
+    }
+    .rankup-card .close-btn:hover { transform: translateY(-2px); }
+    .rankup-card .close-btn:active { transform: scale(.96); }
+
     /* ── Animations ── */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes previewIn {
+      from { opacity: 0; transform: scale(.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes rankupIn {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(.7); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes rankIconBounce {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-8px); }
+    }
     @keyframes praiseIn {
       from { opacity: 0; transform: translateY(12px) scale(.95); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -241,22 +422,23 @@
       0%   { opacity: 1; transform: translate(var(--tx,0px), 0px) scale(1) rotate(0deg); }
       100% { opacity: 0; transform: translate(var(--tx,0px), var(--ty,-200px)) scale(.4) rotate(var(--rot,360deg)); }
     }
-
-    /* ── Confetti ── */
     .confetti-e {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
+      position: fixed; pointer-events: none; z-index: 9999;
       animation: floatUp var(--dur,1s) ease-out var(--delay,0s) both;
     }
 
-    @media (max-width: 460px) {
-      .gallery { grid-template-columns: repeat(3,1fr); }
-      .stat-v  { font-size: 22px; }
+    @media (max-width: 520px) {
+      .gallery   { grid-template-columns: repeat(3,1fr); }
+      .stat-v    { font-size: 22px; }
+      .cal       { grid-template-columns: repeat(10,1fr); }
+      .rank-grid { grid-template-columns: repeat(5,1fr); gap: 4px; }
+      .rank-card .nm { font-size: 10px; }
+      .rank-card .rg { font-size: 9px; }
     }
   </style>
 </head>
 <body>
+
 <div class="wrap">
 
   <div class="hd">
@@ -299,11 +481,28 @@
       </div>
     </div>
 
+    <div class="sec">
+      <div class="lbl">現在のランク</div>
+      <div class="rank-current" id="rank-current">
+        <div class="ri" id="rc-icon">🌱</div>
+        <div class="ri-info">
+          <div class="ri-name" id="rc-name">まだランクなし</div>
+          <div class="ri-sub" id="rc-sub">0枚提出済み</div>
+          <div class="rank-bar"><div class="rank-bar-fill" id="rc-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="lbl">ランク一覧</div>
+      <div class="rank-grid" id="rank-grid"></div>
+    </div>
+
     <div class="sec" id="shame-sec" style="display:none">
-      <div class="lbl">Shame Wall</div>
+      <div class="lbl">⚠ 連続未達成</div>
       <div class="shame" id="shame-box">
         <div class="shame-n" id="shame-n">0</div>
-        <div class="shame-unit">日連続 未提出</div>
+        <div class="shame-unit" id="shame-unit">日連続でサボってます</div>
         <div class="shame-txt" id="shame-txt"></div>
       </div>
     </div>
@@ -316,9 +515,6 @@
 
     <div class="sec">
       <div class="lbl">直近30日</div>
-      <div class="cal-hd">
-        <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
-      </div>
       <div class="cal" id="cal"></div>
     </div>
 
@@ -341,21 +537,43 @@
   </div><!-- /v-app -->
 </div><!-- /wrap -->
 
+<!-- Preview Modal -->
+<div class="modal-overlay hidden" id="preview-overlay">
+  <button class="modal-close" id="preview-close" aria-label="閉じる">✕</button>
+  <div class="preview-wrap">
+    <div class="preview-date" id="preview-date"></div>
+    <div class="preview-imgs" id="preview-imgs"></div>
+  </div>
+</div>
+
+<!-- Rank-up Modal -->
+<div id="rankup-overlay">
+  <canvas id="confetti-canvas"></canvas>
+  <div id="rankup-bg"></div>
+  <div class="rankup-card" id="rankup-card">
+    <div class="ic" id="ru-icon">🥉</div>
+    <div class="lbl-up">Rank Up !</div>
+    <div class="nm" id="ru-name">ブロンズ</div>
+    <div class="msg" id="ru-msg"></div>
+    <button class="close-btn" id="ru-close">閉じる</button>
+  </div>
+</div>
+
 <script>
 'use strict';
 
 /* ── Storage ── */
 const KEY = 'pf-tracker-v1';
-let db = { startDate: null, subs: {} };
+let db = { startDate: null, subs: {}, lastSeenRank: null };
 
 function load() {
   try {
     const r = localStorage.getItem(KEY);
-    if (r) db = JSON.parse(r);
-    // Migrate old single-image format → new multi-image format
+    if (r) db = Object.assign({ startDate: null, subs: {}, lastSeenRank: null }, JSON.parse(r));
+    // Migrate old single-image format
     for (const date of Object.keys(db.subs)) {
       const sub = db.subs[date];
-      if (sub.img !== undefined) {
+      if (sub && sub.img !== undefined) {
         db.subs[date] = { imgs: [{ img: sub.img, at: sub.at }], praise: sub.praise };
       }
     }
@@ -406,21 +624,22 @@ function totalImages() {
   return Object.values(db.subs).reduce((acc, sub) => acc + (sub.imgs?.length || 0), 0);
 }
 
-/* ── 9-level taunts ── */
-const TAUNTS = [
-  [1,  1,   'まだ提出してないぞ。今すぐやれ。'],
-  [2,  2,   '2日連続サボり。まだ間に合う。'],
-  [3,  3,   '三日坊主。やっぱりな。'],
-  [4,  6,   '1週間も経ってないのに崩壊。言い訳は？'],
-  [7,  7,   'まるまる1週間サボった。本気出す気あるの？'],
-  [8,  13,  '2週間近くサボり。才能の無駄遣いだよ。'],
-  [14, 20,  '2週間。もう諦めたの？'],
-  [21, 29,  '3週間以上。完全に心が折れてる。'],
-  [30, Infinity, '1ヶ月超え。もうやめたら？'],
+/* ── Shame messages (9 levels) ── */
+const SHAME_MESSAGES = [
+  'ポートフォリオは勝手に増えませんよ',
+  '明日やる人は永遠にやらない',
+  '言い訳のストックは溜まる一方ですね',
+  '1日1枚を破る人が、1日10枚描けるはずもなく',
+  '今日の自分が、来週の自分を殺してます',
+  '面倒くさいは、未来の機会損失と等価です',
+  'サボった日数 = 失った案件数かもしれません',
+  'クライアントは待ってくれませんよ',
+  'このカウンターが0になる日は来るんでしょうか',
 ];
-function taunt(n) {
-  for (const [a, b, t] of TAUNTS) if (n >= a && n <= b) return t;
-  return '';
+function shameMessage(days) {
+  // 1日→[0], 9日以上→[8]
+  const idx = Math.min(Math.max(days - 1, 0), SHAME_MESSAGES.length - 1);
+  return SHAME_MESSAGES[idx];
 }
 
 /* ── Praise messages ── */
@@ -435,7 +654,6 @@ const PRAISES = [
   '毎日これができる人間、そうそういないよ。本物だ。',
   '今すぐ自分を褒めて。それだけの価値がある。',
 ];
-
 const MULTI_PRAISES = [
   '1日でこんなにできるのかよ...凄すぎじゃん。',
   '複数枚ってどんだけ意欲があるんだ。もはや怪物。',
@@ -446,9 +664,92 @@ const MULTI_PRAISES = [
   '人間の限界に挑戦してる？今日は本当にすごい。',
 ];
 
-/* ── Celebration ── */
-const PARTY = ['🎉','✨','🌟','💫','🎊','🥳','💪','🏆','⭐','🎈','🦄','🔥','🍭','🎀','💎'];
+/* ── Rank system ── */
+const RANKS = [
+  { key: 'bronze',   name: 'ブロンズ',   min: 1,  max: 4,        icon: '🥉', cls: 'rk-bronze',
+    msg: 'おめでとう、最初の1枚！\nここから全てが始まる。' },
+  { key: 'silver',   name: 'シルバー',   min: 5,  max: 9,        icon: '🥈', cls: 'rk-silver',
+    msg: '5枚突破！もう「やる気がある人」じゃなくて「やってる人」だ。' },
+  { key: 'gold',     name: 'ゴールド',   min: 10, max: 14,       icon: '🏆', cls: 'rk-gold',
+    msg: 'おめでとう！継続できる君は天才だ。\n二桁の壁を超えた。' },
+  { key: 'platinum', name: 'プラチナ',   min: 15, max: 19,       icon: '👑', cls: 'rk-platinum',
+    msg: '15枚。これはもう、立派なポートフォリオだ。\n胸を張ってラフを送りつけよう。' },
+  { key: 'legend',   name: 'レジェンド', min: 20, max: Infinity, icon: '⭐', cls: 'rk-legend',
+    msg: '20枚以上。君はもう、面倒くさいの向こう側にいる。\n伝説、始まりました。' },
+];
 
+const RANKUP_TITLE = {
+  bronze:   'ブロンズ獲得！',
+  silver:   'シルバーに昇格！',
+  gold:     'ゴールドに到達！',
+  platinum: 'プラチナ獲得！',
+  legend:   'レジェンド到達！',
+};
+
+function getRank(count) {
+  for (const r of RANKS) if (count >= r.min && count <= r.max) return r;
+  return null;
+}
+function rankIndex(key) {
+  if (!key) return -1;
+  return RANKS.findIndex(r => r.key === key);
+}
+
+/* ── Render: Rank ── */
+function renderRank() {
+  const count = totalImages();
+  const rank  = getRank(count);
+  const rc    = document.getElementById('rank-current');
+  const icon  = document.getElementById('rc-icon');
+  const name  = document.getElementById('rc-name');
+  const sub   = document.getElementById('rc-sub');
+  const bar   = document.getElementById('rc-bar');
+
+  // Clear theme classes
+  rc.classList.remove('has-rank', 'rk-bronze','rk-silver','rk-gold','rk-platinum','rk-legend');
+
+  if (!rank) {
+    icon.textContent = '🌱';
+    name.textContent = 'まだランクなし';
+    sub.textContent  = `0枚提出済み · ブロンズまであと1枚`;
+    bar.style.width  = '0%';
+    bar.parentElement.style.display = '';
+  } else {
+    rc.classList.add('has-rank', rank.cls);
+    icon.textContent = rank.icon;
+    name.textContent = rank.name;
+    if (rank.key === 'legend') {
+      sub.textContent = `${count}枚提出済み · 最高ランク到達 🎉`;
+      bar.parentElement.style.display = 'none';
+    } else {
+      const next = RANKS[RANKS.findIndex(r => r.key === rank.key) + 1];
+      const remain = next.min - count;
+      sub.textContent = `${count}枚提出済み · ${next.name}まであと${remain}枚`;
+      const pct = ((count - rank.min) / (next.min - rank.min)) * 100;
+      bar.parentElement.style.display = '';
+      bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+    }
+  }
+
+  // Rank grid
+  const grid = document.getElementById('rank-grid');
+  grid.innerHTML = '';
+  for (const r of RANKS) {
+    const isCurrent = rank && rank.key === r.key;
+    const card = document.createElement('div');
+    card.className = `rank-card ${r.cls}${isCurrent ? ' active' : ''}`;
+    const range = r.max === Infinity ? `${r.min}枚〜` : `${r.min}〜${r.max}枚`;
+    card.innerHTML =
+      (isCurrent ? `<div class="badge">現在</div>` : '') +
+      `<div class="ic">${r.icon}</div>` +
+      `<div class="nm">${r.name}</div>` +
+      `<div class="rg">${range}</div>`;
+    grid.appendChild(card);
+  }
+}
+
+/* ── Celebration (emoji burst) ── */
+const PARTY = ['🎉','✨','🌟','💫','🎊','🥳','💪','🏆','⭐','🎈','🦄','🔥','🍭','🎀','💎'];
 function celebrate() {
   const dz   = document.getElementById('dz');
   const rect = dz.getBoundingClientRect();
@@ -460,10 +761,9 @@ function celebrate() {
   dz.style.animation = 'dzPop .5s cubic-bezier(.34,1.56,.64,1)';
 
   for (let i = 0; i < 22; i++) {
-    const el     = document.createElement('div');
-    el.className = 'confetti-e';
+    const el = document.createElement('div');
+    el.className   = 'confetti-e';
     el.textContent = PARTY[Math.floor(Math.random() * PARTY.length)];
-
     const angle = (i / 22) * Math.PI * 2 + (Math.random() - .5) * .8;
     const dist  = 80 + Math.random() * 180;
     const tx    = Math.cos(angle) * dist;
@@ -471,12 +771,10 @@ function celebrate() {
     const rot   = (Math.random() - .5) * 900;
     const size  = 20 + Math.random() * 22;
     const dur   = .7 + Math.random() * .6;
-
     el.style.cssText =
       `left:${cx}px; top:${cy}px; font-size:${size}px;` +
       `--tx:${tx}px; --ty:${ty}px; --rot:${rot}deg;` +
       `--dur:${dur}s; --delay:${i * 30}ms;`;
-
     document.body.appendChild(el);
     el.addEventListener('animationend', () => el.remove());
   }
@@ -491,6 +789,101 @@ function celebrate() {
   });
 }
 
+/* ── Canvas Confetti for rank-up ── */
+let confettiRAF = null;
+function fireConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width  = window.innerWidth;
+  const H = canvas.height = window.innerHeight;
+  const colors = ['#EF9F27', '#3C3489', '#72243E', '#1D9E75', '#E24B4A', '#60a5fa', '#FAC775'];
+  const particles = [];
+  for (let i = 0; i < 180; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: -20 - Math.random() * H * 0.4,
+      w: 6 + Math.random() * 8,
+      h: 10 + Math.random() * 14,
+      vy: 2.5 + Math.random() * 4,
+      vx: (Math.random() - .5) * 3,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - .5) * 0.25,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    });
+  }
+  const start = performance.now();
+  if (confettiRAF) cancelAnimationFrame(confettiRAF);
+  function tick(t) {
+    const elapsed = t - start;
+    const alpha   = elapsed > 3000 ? Math.max(0, 1 - (elapsed - 3000) / 1500) : 1;
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = alpha;
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+    if (elapsed < 4500) {
+      confettiRAF = requestAnimationFrame(tick);
+    } else {
+      ctx.clearRect(0, 0, W, H);
+      confettiRAF = null;
+    }
+  }
+  confettiRAF = requestAnimationFrame(tick);
+}
+
+/* ── Rank-up modal ── */
+function showRankUp(rank) {
+  const overlay = document.getElementById('rankup-overlay');
+  const card    = document.getElementById('rankup-card');
+  // Apply theme to card
+  card.classList.remove('rk-bronze','rk-silver','rk-gold','rk-platinum','rk-legend');
+  card.classList.add(rank.cls);
+  document.getElementById('ru-icon').textContent = rank.icon;
+  document.getElementById('ru-name').textContent = RANKUP_TITLE[rank.key];
+  document.getElementById('ru-msg').textContent  = rank.msg;
+
+  overlay.classList.add('active');
+  // re-trigger card entrance animation
+  card.style.animation = 'none'; void card.offsetHeight;
+  card.style.animation = 'rankupIn .5s cubic-bezier(.34,1.56,.64,1)';
+
+  fireConfetti();
+}
+function closeRankUp() {
+  document.getElementById('rankup-overlay').classList.remove('active');
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  if (confettiRAF) { cancelAnimationFrame(confettiRAF); confettiRAF = null; }
+  // Update lastSeenRank
+  const cur = getRank(totalImages());
+  db.lastSeenRank = cur ? cur.key : null;
+  persist();
+}
+
+/* ── Preview modal ── */
+function openPreview(date) {
+  const sub = db.subs[date];
+  if (!sub) return;
+  const imgs = sub.imgs || [];
+  const overlay = document.getElementById('preview-overlay');
+  const wrap    = document.getElementById('preview-imgs');
+  const dateEl  = document.getElementById('preview-date');
+  dateEl.textContent = `${date}（${imgs.length}枚）`;
+  wrap.innerHTML = imgs.map(o => `<img src="${o.img}" alt="${date}">`).join('');
+  overlay.classList.remove('hidden');
+}
+function closePreview() {
+  document.getElementById('preview-overlay').classList.add('hidden');
+}
+
 /* ── Render ── */
 function render() {
   const t     = today();
@@ -501,20 +894,24 @@ function render() {
 
   // Summary
   const sv = document.getElementById('s-today');
-  sv.textContent = done ? '✓' : '✗';
+  sv.textContent = done ? '✓ 達成' : '未提出';
+  sv.style.fontSize = done ? '20px' : '20px';
   sv.className = 'stat-v ' + (done ? 'ok' : 'ng');
   document.getElementById('s-streak').textContent = str;
   document.getElementById('s-total').textContent  = total;
+
+  // Rank
+  renderRank();
 
   // Shame
   const ss = document.getElementById('shame-sec');
   if (shm > 0) {
     ss.style.display = '';
     document.getElementById('shame-n').textContent   = shm;
-    document.getElementById('shame-txt').textContent = taunt(shm);
+    document.getElementById('shame-unit').textContent = `${shm}日連続でサボってます`;
+    document.getElementById('shame-txt').textContent = shameMessage(shm);
     const box = document.getElementById('shame-box');
-    box.style.animation = 'none';
-    void box.offsetHeight;
+    box.style.animation = 'none'; void box.offsetHeight;
     box.style.animation = 'shameShake .5s ease';
   } else {
     ss.style.display = 'none';
@@ -525,9 +922,9 @@ function render() {
   const dzIn = document.getElementById('dz-in');
   if (done) {
     dz.className = 'dz done';
-    const sub   = db.subs[t];
-    const imgs  = sub.imgs || [];
-    const count = imgs.length;
+    const sub    = db.subs[t];
+    const imgs   = sub.imgs || [];
+    const count  = imgs.length;
     const latest = imgs[imgs.length - 1]?.img || '';
     dzIn.innerHTML =
       `<img src="${latest}" alt="提出済み">` +
@@ -553,15 +950,7 @@ function renderCal() {
   cal.innerHTML = '';
   const t = today();
 
-  const first = new Date();
-  first.setDate(first.getDate() - 29);
-  const dow = first.getDay();
-
-  for (let i = 0; i < dow; i++) {
-    const el = document.createElement('div');
-    el.className = 'cc';
-    cal.appendChild(el);
-  }
+  // Last 30 days, oldest first
   for (let i = 0; i < 30; i++) {
     const d = new Date();
     d.setDate(d.getDate() - 29 + i);
@@ -598,9 +987,9 @@ function renderGallery() {
   g.className = 'gallery';
   g.innerHTML = '';
   dates.forEach((date, idx) => {
-    const sub   = db.subs[date];
-    const imgs  = sub.imgs || [];
-    const count = imgs.length;
+    const sub    = db.subs[date];
+    const imgs   = sub.imgs || [];
+    const count  = imgs.length;
     const latest = imgs[imgs.length - 1]?.img || '';
 
     const item = document.createElement('div');
@@ -610,6 +999,7 @@ function renderGallery() {
       `<img src="${latest}" alt="${date}">` +
       `<div class="gd">${date.slice(5)}</div>` +
       (count > 1 ? `<div class="g-badge">${count}枚</div>` : '');
+    item.addEventListener('click', () => openPreview(date));
     g.appendChild(item);
   });
 }
@@ -628,7 +1018,7 @@ async function compress(file) {
         const c = document.createElement('canvas');
         c.width = w; c.height = h;
         c.getContext('2d').drawImage(img, 0, 0, w, h);
-        res(c.toDataURL('image/jpeg', 0.82));
+        res(c.toDataURL('image/jpeg', 0.7));
       };
       img.onerror = rej;
       img.src = e.target.result;
@@ -647,19 +1037,29 @@ async function submit(file) {
     let imgs, praise;
 
     if (existing && existing.imgs?.length > 0) {
-      // 追加アップロード
       imgs   = [...existing.imgs, { img, at: Date.now() }];
       praise = MULTI_PRAISES[Math.floor(Math.random() * MULTI_PRAISES.length)];
     } else {
-      // 初回アップロード
       imgs   = [{ img, at: Date.now() }];
       praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
     }
-
     db.subs[t] = { imgs, praise };
+
+    // Check rank-up BEFORE persisting
+    const newCount = totalImages();
+    const newRank  = getRank(newCount);
+    const newRankKey = newRank ? newRank.key : null;
+    const seenIdx = rankIndex(db.lastSeenRank);
+    const newIdx  = rankIndex(newRankKey);
+    const rankUp  = newRank && newIdx > seenIdx;
+
     persist();
     render();
     celebrate();
+
+    if (rankUp) {
+      setTimeout(() => showRankUp(newRank), 700);
+    }
   } catch(_) {
     alert('画像の処理に失敗しました。');
   }
@@ -686,6 +1086,7 @@ function initUI() {
   document.getElementById('btn-start').addEventListener('click', () => {
     db.startDate = today();
     db.subs = {};
+    db.lastSeenRank = null;
     persist();
     showApp();
   });
@@ -699,9 +1100,33 @@ function initUI() {
 
   document.getElementById('btn-reset-all').addEventListener('click', () => {
     if (!confirm('全データを削除しますか？\nこの操作は取り消せません。')) return;
-    db = { startDate: null, subs: {} };
+    db = { startDate: null, subs: {}, lastSeenRank: null };
     persist();
     showSetup();
+  });
+
+  // Preview modal
+  document.getElementById('preview-close').addEventListener('click', closePreview);
+  document.getElementById('preview-overlay').addEventListener('click', e => {
+    if (e.target.id === 'preview-overlay') closePreview();
+  });
+
+  // Rank-up modal
+  document.getElementById('ru-close').addEventListener('click', closeRankUp);
+  document.getElementById('rankup-bg').addEventListener('click', closeRankUp);
+
+  // ESC closes any modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (!document.getElementById('preview-overlay').classList.contains('hidden')) closePreview();
+      if (document.getElementById('rankup-overlay').classList.contains('active'))   closeRankUp();
+    }
+  });
+
+  // Resize confetti canvas
+  window.addEventListener('resize', () => {
+    const c = document.getElementById('confetti-canvas');
+    c.width = window.innerWidth; c.height = window.innerHeight;
   });
 }
 

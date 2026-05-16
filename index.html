@@ -894,8 +894,7 @@ function render() {
 
   // Summary
   const sv = document.getElementById('s-today');
-  sv.textContent = done ? '✓ 達成' : '未提出';
-  sv.style.fontSize = done ? '20px' : '20px';
+  sv.textContent = done ? '✓' : '✗';
   sv.className = 'stat-v ' + (done ? 'ok' : 'ng');
   document.getElementById('s-streak').textContent = str;
   document.getElementById('s-total').textContent  = total;

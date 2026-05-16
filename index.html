@@ -47,9 +47,23 @@
     .wrap { max-width: 680px; margin: 0 auto; }
 
     /* ── Header ── */
-    .hd { margin-bottom: 40px; text-align: center; }
+    .hd { margin-bottom: 20px; text-align: center; }
     .hd h1 { font-size: 27px; font-weight: 800; letter-spacing: -.02em; }
     .hd p  { font-size: 18px; color: var(--muted); margin-top: 6px; }
+
+    /* ── Rules ── */
+    .rules {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rules p { font-size: 13px; line-height: 1.8; color: var(--muted); }
+    .rules strong { color: var(--text); font-weight: 700; }
 
     /* ── Section ── */
     .sec { margin-bottom: 36px; }
@@ -155,6 +169,7 @@
       background: var(--surface); border: 1.5px solid var(--border);
       border-radius: 14px;
       transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s;
+      animation: giIn .35s cubic-bezier(.34,1.56,.64,1) both;
     }
     .gi:hover { transform: scale(1.05) rotate(.5deg); border-color: var(--blue); }
     .gi img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
@@ -163,6 +178,12 @@
       background: rgba(0,0,0,.55); color: #fff;
       font-size: 9px; padding: 3px 5px; text-align: center;
       border-radius: 0 0 12px 12px;
+    }
+    .g-badge {
+      position: absolute; top: 5px; right: 5px;
+      background: var(--blue); color: #fff;
+      font-size: 9px; font-weight: 700;
+      padding: 2px 6px; border-radius: 99px;
     }
     .empty { font-size: 13px; color: var(--muted); }
 
@@ -228,9 +249,6 @@
       animation: floatUp var(--dur,1s) ease-out var(--delay,0s) both;
     }
 
-    /* ── Gallery animation ── */
-    .gi { animation: giIn .35s cubic-bezier(.34,1.56,.64,1) both; }
-
     @media (max-width: 460px) {
       .gallery { grid-template-columns: repeat(3,1fr); }
       .stat-v  { font-size: 22px; }
@@ -243,6 +261,12 @@
   <div class="hd">
     <h1>📅&nbsp;&nbsp;ポートフォリオ提出管理</h1>
     <p id="hd-date"></p>
+  </div>
+
+  <div class="rules">
+    <p><strong>提出ノルマ：</strong>毎日1枚以上、ポートフォリオ用の画像を提出してください。</p>
+    <p><strong>ペナルティ：</strong>提出をサボると、「煽りメッセージ」が届きます😱</p>
+    <p><strong>エスカレート方式：</strong>煽りのキツさは全9段階です。未提出の日数が長引くほど、メッセージが容赦なくヒートアップしていきます🔥</p>
   </div>
 
   <!-- ── Setup view ── -->
@@ -269,7 +293,7 @@
         </div>
         <div class="stat" id="stat-total-card">
           <div class="stat-v" id="s-total">0</div>
-          <div class="stat-k">総提出数</div>
+          <div class="stat-k">総提出枚数</div>
         </div>
       </div>
     </div>
@@ -298,7 +322,7 @@
     </div>
 
     <div class="sec">
-      <div class="lbl">ギャラリー（最新12枚）</div>
+      <div class="lbl">ギャラリー（最新12日）</div>
       <div id="gallery"></div>
     </div>
 
@@ -324,7 +348,17 @@ const KEY = 'pf-tracker-v1';
 let db = { startDate: null, subs: {} };
 
 function load() {
-  try { const r = localStorage.getItem(KEY); if (r) db = JSON.parse(r); } catch(_) {}
+  try {
+    const r = localStorage.getItem(KEY);
+    if (r) db = JSON.parse(r);
+    // Migrate old single-image format → new multi-image format
+    for (const date of Object.keys(db.subs)) {
+      const sub = db.subs[date];
+      if (sub.img !== undefined) {
+        db.subs[date] = { imgs: [{ img: sub.img, at: sub.at }], praise: sub.praise };
+      }
+    }
+  } catch(_) {}
 }
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(db)); }
@@ -367,6 +401,10 @@ function shame() {
   return n;
 }
 
+function totalImages() {
+  return Object.values(db.subs).reduce((acc, sub) => acc + (sub.imgs?.length || 0), 0);
+}
+
 /* ── 9-level taunts ── */
 const TAUNTS = [
   [1,  1,   'まだ提出してないぞ。今すぐやれ。'],
@@ -397,6 +435,16 @@ const PRAISES = [
   '今すぐ自分を褒めて。それだけの価値がある。',
 ];
 
+const MULTI_PRAISES = [
+  '1日でこんなにできるのかよ...凄すぎじゃん。',
+  '複数枚ってどんだけ意欲があるんだ。もはや怪物。',
+  '量産型天才じゃん。今日は何食べたの？',
+  'え、まだ出すの？もう十分すぎるくらい偉いよ。',
+  'これだけ出せるなら、明日も来いよ。絶対来いよ。',
+  '何枚出す気？あなたのこと、ちょっと怖くなってきた（褒めてる）。',
+  '人間の限界に挑戦してる？今日は本当にすごい。',
+];
+
 /* ── Celebration ── */
 const PARTY = ['🎉','✨','🌟','💫','🎊','🥳','💪','🏆','⭐','🎈','🦄','🔥','🍭','🎀','💎'];
 
@@ -406,14 +454,12 @@ function celebrate() {
   const cx   = rect.left + rect.width  / 2;
   const cy   = rect.top  + rect.height / 2;
 
-  // Drop zone pop
   dz.style.animation = 'none';
   void dz.offsetHeight;
   dz.style.animation = 'dzPop .5s cubic-bezier(.34,1.56,.64,1)';
 
-  // Emoji burst
   for (let i = 0; i < 22; i++) {
-    const el    = document.createElement('div');
+    const el     = document.createElement('div');
     el.className = 'confetti-e';
     el.textContent = PARTY[Math.floor(Math.random() * PARTY.length)];
 
@@ -424,18 +470,16 @@ function celebrate() {
     const rot   = (Math.random() - .5) * 900;
     const size  = 20 + Math.random() * 22;
     const dur   = .7 + Math.random() * .6;
-    const delay = i * 30;
 
     el.style.cssText =
       `left:${cx}px; top:${cy}px; font-size:${size}px;` +
       `--tx:${tx}px; --ty:${ty}px; --rot:${rot}deg;` +
-      `--dur:${dur}s; --delay:${delay}ms;`;
+      `--dur:${dur}s; --delay:${i * 30}ms;`;
 
     document.body.appendChild(el);
     el.addEventListener('animationend', () => el.remove());
   }
 
-  // Pulse stat cards
   ['stat-today-card','stat-streak-card','stat-total-card'].forEach((id, i) => {
     const el = document.getElementById(id);
     setTimeout(() => {
@@ -452,7 +496,7 @@ function render() {
   const done  = !!db.subs[t];
   const str   = streak();
   const shm   = shame();
-  const total = Object.keys(db.subs).length;
+  const total = totalImages();
 
   // Summary
   const sv = document.getElementById('s-today');
@@ -467,7 +511,6 @@ function render() {
     ss.style.display = '';
     document.getElementById('shame-n').textContent   = shm;
     document.getElementById('shame-txt').textContent = taunt(shm);
-    // Re-trigger shake animation
     const box = document.getElementById('shame-box');
     box.style.animation = 'none';
     void box.offsetHeight;
@@ -481,12 +524,15 @@ function render() {
   const dzIn = document.getElementById('dz-in');
   if (done) {
     dz.className = 'dz done';
-    const sub = db.subs[t];
+    const sub   = db.subs[t];
+    const imgs  = sub.imgs || [];
+    const count = imgs.length;
+    const latest = imgs[imgs.length - 1]?.img || '';
     dzIn.innerHTML =
-      `<img src="${sub.img}" alt="提出済み">` +
-      `<div class="ok-lbl">✓ 提出済み</div>` +
+      `<img src="${latest}" alt="提出済み">` +
+      `<div class="ok-lbl">✓ ${count}枚 提出済み</div>` +
       (sub.praise ? `<div class="praise-txt">${sub.praise}</div>` : '') +
-      `<div class="re-lbl">クリックで更新</div>`;
+      `<div class="re-lbl">クリックでさらに追加</div>`;
   } else {
     dz.className = 'dz';
     dzIn.innerHTML =
@@ -551,12 +597,18 @@ function renderGallery() {
   g.className = 'gallery';
   g.innerHTML = '';
   dates.forEach((date, idx) => {
+    const sub   = db.subs[date];
+    const imgs  = sub.imgs || [];
+    const count = imgs.length;
+    const latest = imgs[imgs.length - 1]?.img || '';
+
     const item = document.createElement('div');
     item.className = 'gi';
     item.style.animationDelay = `${idx * 40}ms`;
     item.innerHTML =
-      `<img src="${db.subs[date].img}" alt="${date}">` +
-      `<div class="gd">${date.slice(5)}</div>`;
+      `<img src="${latest}" alt="${date}">` +
+      `<div class="gd">${date.slice(5)}</div>` +
+      (count > 1 ? `<div class="g-badge">${count}枚</div>` : '');
     g.appendChild(item);
   });
 }
@@ -588,9 +640,22 @@ async function compress(file) {
 async function submit(file) {
   if (!file || !file.type.startsWith('image/')) return;
   try {
-    const img    = await compress(file);
-    const praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
-    db.subs[today()] = { img, at: Date.now(), praise };
+    const img = await compress(file);
+    const t   = today();
+    const existing = db.subs[t];
+    let imgs, praise;
+
+    if (existing && existing.imgs?.length > 0) {
+      // 追加アップロード
+      imgs   = [...existing.imgs, { img, at: Date.now() }];
+      praise = MULTI_PRAISES[Math.floor(Math.random() * MULTI_PRAISES.length)];
+    } else {
+      // 初回アップロード
+      imgs   = [{ img, at: Date.now() }];
+      praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+    }
+
+    db.subs[t] = { imgs, praise };
     persist();
     render();
     celebrate();

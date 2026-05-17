@@ -166,6 +166,9 @@
       background: var(--rank-bg, var(--surface));
       border-color: var(--rank-border, var(--text));
     }
+    .rank-card.active .nm { color: var(--rank-name); }
+    .rank-card.active .rg { color: var(--rank-name); opacity: .75; }
+    .rank-current.has-rank .ri-sub { color: var(--rank-name); opacity: .75; }
     .rank-card .badge {
       position: absolute; top: -8px; right: 50%; transform: translateX(50%);
       background: var(--rank-border, var(--text)); color: #fff;
@@ -663,13 +666,14 @@ const PRAISES = [
   '今すぐ自分を褒めて。それだけの価値がある。',
 ];
 const MULTI_PRAISES = [
-  '1日でこんなにできるのかよ...凄すぎじゃん。',
-  '複数枚ってどんだけ意欲があるんだ。もはや怪物。',
-  '量産型天才じゃん。今日は何食べたの？',
-  'え、まだ出すの？もう十分すぎるくらい偉いよ。',
-  'これだけ出せるなら、明日も来いよ。絶対来いよ。',
-  '何枚出す気？あなたのこと、ちょっと怖くなってきた（褒めてる）。',
-  '人間の限界に挑戦してる？今日は本当にすごい。',
+  '素晴らしい！この調子で頑張ろう👍',
+  'いい感じ！継続は力なり💪',
+  'ナイス！今日も1枚積み上げたね🎯',
+  'やってる、やってる！その姿勢がカッコいい✨',
+  '1日2枚以上！理想的じゃん👏',
+  'このペースなら本当にレジェンドも夢じゃない⭐',
+  '安定感あるね。プロの匂いがする🌟',
+  'まじでえらい。明日もこの調子でいこう🚀',
 ];
 
 /* ── Rank system ── */
@@ -870,10 +874,6 @@ function closeRankUp() {
   const canvas = document.getElementById('confetti-canvas');
   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   if (confettiRAF) { cancelAnimationFrame(confettiRAF); confettiRAF = null; }
-  // Update lastSeenRank
-  const cur = getRank(totalImages());
-  db.lastSeenRank = cur ? cur.key : null;
-  persist();
 }
 
 /* ── Preview modal ── */
@@ -1059,6 +1059,11 @@ async function submit(file) {
     const seenIdx = rankIndex(db.lastSeenRank);
     const newIdx  = rankIndex(newRankKey);
     const rankUp  = newRank && newIdx > seenIdx;
+
+    // ランクアップした場合、表示前に lastSeenRank を更新（多重発火防止）
+    if (rankUp) {
+      db.lastSeenRank = newRankKey;
+    }
 
     persist();
     render();
